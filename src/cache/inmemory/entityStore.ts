@@ -91,7 +91,7 @@ export abstract class EntityStore implements NormalizedCache {
     // this dataId. Any consumer who cares about the contents of the StoreObject
     // should not rely on this dependency, since the contents could change
     // without the object being added or removed.
-    if (dependOnExistence) this.group.depend(dataId, "__exists");
+    if (dependOnExistence) this.group.depend(dataId, "__exists", true);
 
     if (hasOwn.call(this.data, dataId)) {
       return this.data[dataId];
@@ -605,17 +605,24 @@ class CacheGroup {
     this.keyMaker = new Trie(canUseWeakMap);
   }
 
-  public depend(dataId: string, storeFieldName: string) {
+  public depend(
+    dataId: string,
+    storeFieldName: string,
+    skipExtraIdentifyingFields = false
+  ) {
     if (this.d) {
       this.d(makeDepKey(dataId, storeFieldName));
-      const fieldName = fieldNameFromStoreName(storeFieldName);
-      if (fieldName !== storeFieldName) {
-        // Fields with arguments that contribute extra identifying
-        // information to the fieldName (thus forming the storeFieldName)
-        // depend not only on the full storeFieldName but also on the
-        // short fieldName, so the field can be invalidated using either
-        // level of specificity.
-        this.d(makeDepKey(dataId, fieldName));
+
+      if (!skipExtraIdentifyingFields) {
+        const fieldName = fieldNameFromStoreName(storeFieldName);
+        if (fieldName !== storeFieldName) {
+          // Fields with arguments that contribute extra identifying
+          // information to the fieldName (thus forming the storeFieldName)
+          // depend not only on the full storeFieldName but also on the
+          // short fieldName, so the field can be invalidated using either
+          // level of specificity.
+          this.d(makeDepKey(dataId, fieldName));
+        }
       }
       if (this.parent) {
         this.parent.depend(dataId, storeFieldName);
