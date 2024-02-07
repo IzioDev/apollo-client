@@ -13,7 +13,6 @@ import {
   isReference,
   makeReference,
   DeepMerger,
-  maybeDeepFreeze,
   canUseWeakMap,
   isNonNullObject,
 } from "../../utilities/index.js";
@@ -242,7 +241,7 @@ export abstract class EntityStore implements NormalizedCache {
         if (modify) {
           let newValue =
             modify === delModifier ? DELETE : (
-              modify(maybeDeepFreeze(fieldValue), {
+              modify(fieldValue, {
                 ...sharedDetails,
                 fieldName,
                 storeFieldName,
@@ -533,11 +532,10 @@ export abstract class EntityStore implements NormalizedCache {
     objectOrReference: StoreObject | Reference | undefined,
     storeFieldName: string
   ) =>
-    maybeDeepFreeze(
-      isReference(objectOrReference) ?
-        this.get(objectOrReference.__ref, storeFieldName)
-      : objectOrReference && objectOrReference[storeFieldName]
-    ) as SafeReadonly<T>;
+    (isReference(objectOrReference) ?
+      this.get(objectOrReference.__ref, storeFieldName)
+    : objectOrReference &&
+      objectOrReference[storeFieldName]) as SafeReadonly<T>;
 
   // Returns true for non-normalized StoreObjects and non-dangling
   // References, indicating that readField(name, objOrRef) has a chance of

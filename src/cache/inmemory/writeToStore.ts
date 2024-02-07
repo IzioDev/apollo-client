@@ -21,7 +21,6 @@ import {
   resultKeyNameFromField,
   isReference,
   shouldInclude,
-  cloneDeep,
   addTypenameToDocument,
   isNonEmptyArray,
   argumentsObjectFromField,
@@ -470,7 +469,7 @@ export class StoreWriter {
       // In development, we need to clone scalar values so that they can be
       // safely frozen with maybeDeepFreeze in readFromStore.ts. In production,
       // it's cheaper to store the scalar values directly in the cache.
-      return __DEV__ ? cloneDeep(value) : value;
+      return value;
     }
 
     if (isArray(value)) {

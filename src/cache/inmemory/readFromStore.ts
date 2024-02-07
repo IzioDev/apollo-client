@@ -22,7 +22,6 @@ import {
   getMainDefinition,
   getQueryDefinition,
   getFragmentFromSelection,
-  maybeDeepFreeze,
   mergeDeepArray,
   DeepMerger,
   isNonNullObject,
@@ -448,7 +447,7 @@ export class StoreReader {
         this.canon.admit(finalResult)
         // Since this.canon is normally responsible for freezing results (only in
         // development), freeze them manually if canonization is disabled.
-      : maybeDeepFreeze(finalResult);
+      : finalResult;
 
     // Store this result with its selection set so that we can quickly
     // recognize it again in the StoreReader#isFresh method.
